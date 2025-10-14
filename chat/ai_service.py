@@ -10,7 +10,7 @@ class GeminiService:
 
         genai.configure(api_key=api_key)
 
-        # ✅ Guarda el modelo correctamente como atributo de instancia
+    
         self.model = genai.GenerativeModel("models/gemini-2.5-flash")
 
     def generate_response(self, user_message, products, context):
