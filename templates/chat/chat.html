@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chat con Asistente IA{% endblock %}
+
+{% block content %}
+<h2>💬 Asistente de Compras con IA</h2>
+
+<div id="chat-box" style="border:1px solid #ccc; padding:15px; background:#fff; height:400px; overflow-y:auto; margin-bottom:10px;">
+  <div id="messages"></div>
+</div>
+
+<div>
+  <input id="chat-input" type="text" placeholder="Escribe tu mensaje..." style="width:80%; padding:8px;">
+  <button id="send-btn" style="padding:8px 16px;">Enviar</button>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const sessionId = "{{ session_id }}";
+const input = document.getElementById("chat-input");
+const messagesBox = document.getElementById("messages");
+
+function addMessage(sender, text) {
+  const msg = document.createElement("div");
+  msg.innerHTML = `<strong>${sender}:</strong> ${text.replace(/\n/g, '<br>')}`;
+  msg.style.marginBottom = "8px";
+  messagesBox.appendChild(msg);
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage("Tú", text);
+  input.value = "";
+
+  const resp = await fetch("{% url 'chat:chat_api' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify({ session_id: sessionId, message: text }),
+  });
+
+  const data = await resp.json();
+  if (data.assistant_message) {
+    addMessage("Asistente", data.assistant_message);
+  } else {
+    addMessage("Asistente", "⚠️ No se pudo obtener respuesta.");
+  }
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.getElementById("send-btn").addEventListener("click", sendMessage);
+input.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
+{% endblock %}
