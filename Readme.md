@@ -8,7 +8,7 @@ docker compose up
 
 ###  Evidencias Requeridas (Screenshots)
 #### a) Swagger UI de la API
-- **Archivo:** `evidencias/01-swagger-ui.png`
+-  [**Archivo:**] (evidencias/01-swagger-ui.png)
 
 #### b) Logs de Docker
 - **Archivo:** `evidencias/02-docker-logs.png`
